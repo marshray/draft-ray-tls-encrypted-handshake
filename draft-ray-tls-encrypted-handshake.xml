@@ -145,10 +145,10 @@
       renegotiation is of limited use to endpoints desiring greater protection
       for their handshake data.</t>
 
-      <t>The amount of interesting information sent in the clear will continue
-      to increase as new protocol features and applications are enabled by new
-      TLS extensions. But some interesting new applications may be limited by the
-      lack of encryption during the initial handshake.</t>
+      <t>The amount of interesting information sent in the clear seems likely
+      to increase as new protocol features and applications are enabled by
+      TLS extensions. But some interesting new applications may also be
+      limited by the lack of encryption during the initial handshake.</t>
 
       <t>In the unmodified TLS handshake, encryption of the record layer begins
       seemingly as late in the process as possible. The reasons for this design
@@ -156,14 +156,15 @@
       historical under-use of ephemeral Diffie-Hellman (DHE) cipher suites at
       the time (SSLv2 did not support them at all). At the time, the need for
       the additional computation required by traditional Diffie-Hellman key
-      exchange was considered expensive and for the RC4 cipher (very popular
-      for its efficiency) DHE cipher suites have never even been defined.
-      Before the Server Name Indication (SNI) extension [RFC 6066], it was not
-      possible to serve multiple HTTPS sites from a single IP address, so the
-      specific site to which the user was connecting was effectively already
-      known. There were no TLS extensions to carry interesting plaintext, so
-      there was little interesting plaintext to protect (client certs being a
-      notable exception).</t>
+      exchange was considered expensive. The RC4 cipher was, and still is,
+      very popular for its efficiency, bue DHE cipher suites for it have never
+      even been defined. Until the Server Name Indication (SNI) extension
+      [RFC 6066] was specified, it was not possible to serve multiple HTTPS
+      sites from a single IP address, so the specific site to which the user
+      was connecting was effectively already known. There were no TLS
+      extensions to carry interesting plaintext, so there was little
+      interesting plaintext to protect (client certs being a notable
+      exception).</t>
 
       <t>Today we have a greater amount of interesting information present in
       the handshake, faster hardware, and the far more efficient Elliptic
@@ -194,20 +195,20 @@
       <t>While in general it is not possible to protect pre-authentication
       data from an active man-in-the-middle type attacker, this extension
       hides the bulk of the handshake data from a passive observer and can
-      detect active attacks as a failed handshake.</t>
+      ensure active attacks result in a failed handshake.</t>
 
       <t>Level one provides encryption with forward secrecy for all data in
       the Server Hello message (including Server Hello extensions) and all
       data following. This level incurs no additional computational or
-      round-trip overhead over the traditional handshake and is intended to
-      require minimal changes to the implementation of existing libraries, but
-      it has the limitation that data sent by the client in the Client Hello
-      continues to be sent in the clear.</t>
+      round-trip overhead over the traditional (EC)DH(E) handshake and is
+      intended to require minimal changes to the implementation of existing
+      libraries. But it has the limitation that data sent by the client in the
+      Client Hello continues to be sent in the clear.</t>
 
-      <t>The second level of implementation encrypts all the same handshake
-      data as the first and additionally encrypts the most interesting parts
-      of the Client Hello (e.g. the extensions), but it requires an additional
-      round trip to the server.</t>
+      <t>The second level of implementation encrypts all the handshake
+      data the first and additionally encrypts the most interesting parts
+      of the Client Hello (e.g. the extensions), but it introduces an
+      additional round trip at the start of the handshake.</t>
 
       <!-- Figures should not exceed 69 characters wide to allow for the
       indent of sections. -->
@@ -317,7 +318,7 @@ Application Data             <------->     Application Data
       depending on the type of the message carrying it.</t>
 
       <t>Levels of support are indicated by the following enumeration.
-      However, levels higher than are defined here are reserved for future use
+      Values other than those defined here are reserved for future use
       and receivers should treat them accordingly.
 
         <figure>
@@ -348,18 +349,18 @@ Application Data             <------->     Application Data
           EH level being requested by the client.</t>
 
           <t hangText="client_required"><vspace blankLines="0"/>The lowest
-          EH level acceptable
-          by the client.</t>
+          EH level acceptable by the client.</t>
 
-          <t hangText="client_dh_params_sets"><vspace blankLines="0"/>Contains a set of
-          (EC)DH(E) parameters for all KeyExchangeAlgorithms used by any of the
-          cipher_suites specified in the ClientHello. The element type is defined below.</t>
+          <t hangText="client_dh_params_sets"><vspace blankLines="0"/>Contains
+          a set of (EC)DH(E) parameters for all KeyExchangeAlgorithms used by
+          any of the cipher_suites specified in the Client Hello. The
+          ClientDHParamSet type is defined below.</t>
 
           <t hangText="conditional_extensions"><vspace
           blankLines="0"/>ClientHello-type extensions which are sent in the
           clear, but to be processed by the server only if the server interprets
           the EH extension and agrees to EH level one or higher. The definition
-          of 'Extension' is from [TLS].</t>
+          of the 'Extension' type is from [TLS].</t>
         </list>
       </t>
 
@@ -375,14 +376,15 @@ Application Data             <------->     Application Data
         </figure>
 
         <list style="hanging">
-          <t hangText="server_max_supported"><vspace blankLines="0"/>The max
-          EH level provided by the server, for informational
+          <t hangText="server_max_supported"><vspace blankLines="0"/>The
+          maximum EH level provided by the server, for informational
           purposes.</t>
         </list>
       </t>
 
-      <t>The EH extension MAY be included on the ServerHello2a or ServerHello2b message, or it may be omitted.
-      If present, it MUST be empty.</t>
+      <t>The EH extension MAY be included on the ServerHello2a and
+      ServerHello2b messages, or it may be omitted.  If present, it MUST be
+      empty.</t>
 
       <t>The ClientDHParamSet structure represents a set of (EC)DH parameters
       and specifies with which cipher suites they may be used:
@@ -393,12 +395,13 @@ Application Data             <------->     Application Data
         CipherSuite cipher_suites<2..2^16-2>;
         uint16 params_size;
         select (KeyExchangeAlgorithm) {
-            case dh_anon:              // [TLS]
+            case dh_anon:
             case dhe_dss:
             case dhe_rsa:
-                DHParams params;
-            case ec_diffie_hellman:    // [RFC 4492]
-                ClientECDiffieHellmanPublic params;
+                ClientDiffieHellmanPublic params;   // [TLS]
+    XXX PublicValueEncoding is always 'explicit' because Yc must always be sent
+            case ec_diffie_hellman:  
+                ClientECDiffieHellmanPublic params; // [RFC 4492]
         };
     } ClientDHParamSet;
         ]]></artwork></figure>
@@ -411,7 +414,10 @@ Application Data             <------->     Application Data
           params field.</t>
 
           <t hangText="params"><vspace blankLines="0"/>The set of Diffie-Hellman
-          parameters to be used for the specified cipher suites.</t>
+          parameters to be used for the specified cipher suites. The
+          definitions for these types are from their respective RFCs. This
+          is the 'explicit' form of these structures even when
+          *_fixed_(EC)DH key exchange will be used by the later key exchange.</t>
         </list>
       </t>
     </section>
@@ -423,7 +429,7 @@ Application Data             <------->     Application Data
       information necessary to complete the key exchange subsequent to a Client
       Hello which proposed the use of EH.</t>
 
-      <figure align="center">
+      <figure>
         <artwork align="left"><![CDATA[
     struct {
         ProtocolVersion server_version;
@@ -490,7 +496,7 @@ Application Data             <------->     Application Data
         </list>
       </t>
 
-      <figure align="center">
+      <figure>
         <artwork align="left"><![CDATA[
     struct {
         EncryptedHandshakeLevel server_max_supported;
@@ -527,7 +533,7 @@ Application Data             <------->     Application Data
       absent in the ClientHello in order to supply them later under encryption
       in ClientHello2.
 
-      <figure align="center">
+      <figure>
         <artwork align="left"><![CDATA[
     struct {
         SessionID session_id;
@@ -669,8 +675,7 @@ Application Data             <------->     Application Data
           client_requested and client_required fields to two.  Such a client
           SHOULD NOT set any session_id or extension data on the ClientHello,
           or send extensions other than EH and those necessary for the key
-          exchange and the integrity of the connection.  Renegotiation Info
-          [RFC 5746] is an example of such an extension.</t>
+          exchange and the integrity of the connection.</t>
         </list></t>
 
         <t>If a client, requesting level one or higher, anticipates that
@@ -791,8 +796,8 @@ Application Data             <------->     Application Data
 
           <list style="symbols">
             <t>If no EH extension is present, the negotiated EH level is zero
-            server continues the TLS connection as usual. The remainder of
-            this section does not apply.</t>
+            and the server continues the TLS connection as usual. The
+            remainder of this section does not apply.</t>
 
             <t>If an EH extension is present, the server uses the smaller of
             the client_requested value and the server's own maximum supported
@@ -815,12 +820,12 @@ Application Data             <------->     Application Data
         client_requested value, or it is higher than that supported by the
         server, the server SHOULD continue the handshake at the smaller of the
         client_requested and max_server_supported values. In such a case, the
-        server's goal should be to transmit its Finished message while
+        server's goal is to transmit its Finished message while
         disclosing a minimum of information. For example, the Server Hello
         MUST NOT transmit a nonempty session_id (except to indicate session
         resumption) and it MUST NOT include extensions other than EH and those
-        necessary for the integrity of the connection.  Renegotiation Info is
-        an example of such an extension.  The server MUST NOT request client
+        necessary for the integrity of the connection.
+        The server MUST NOT request client
         authentication.  Immediately after transmitting the Server Finished
         message the server MUST close the connection gracefully without
         transferring any application data.</t>
@@ -836,8 +841,7 @@ Application Data             <------->     Application Data
         ServerHello2a. Most of the fields correspond directly to those of
         ServerHello, the others carry the server's (EC)DH params. The server
         MUST NOT include extensions other than EH and those necessary for the
-        integrity of the connection. Renegotiation Info is an example of such
-        an extension.</t>
+        integrity of the connection.</t>
 
         <t>The server transmits its Change Cipher Spec record and switches to
         the new cipher state in the transmit direction.</t>
@@ -876,21 +880,26 @@ Application Data             <------->     Application Data
     </section>
 
     <section title="Other Considerations">
-      <t>Implementers of TLS libraries that allow configuration of cipher
-      suites (e.g. a permitted cipher suites list ordered by preference) are
-      encouraged provide a means to configure this list separately for
-      EH-requesting clients. This is to prevent a situation where server
-      support of this extension is restricted by a simple server preference
-      for non-DHE cipher suites.</t>
+      <t>At times this text refers to "extensions other than EH and those
+      necessary for the integrity of the connection". Renegotiation
+      Info [RFC 5746] is an example of such an extension.</t>
 
-      <t>There are reportedly some defective servers [XXX cite?] that
-      fail in an ungraceful manner if sent a Client Hello message larger than
-      a certain size which is smaller than the defined maximum. Clients
-      wishing to minimize the risk of interoperability with such servers may
-      consider limiting the number of parameter sets they include in the Client
-      Hello, or sending only the smaller ECDH types. It is possible that
-      these noncompliant servers are older and less well-maintained
-      implementations and tend not to support newer features such as ECDH.</t>
+      <t>Implementers of TLS libraries that allow configuration of cipher
+      suites (e.g. a list of acceptable cipher suites ordered by preference)
+      are encouraged to provide a means to configure this list separately for
+      EH-requesting clients. This is intended to prevent a situation where
+      server support of this extension is excessively restricted by a simple
+      server preference for non-DHE cipher suites.</t>
+
+      <t>There are reportedly some defective servers [XXX cite?] that fail in
+      an ungraceful manner if sent a Client Hello message larger than a
+      certain size which is smaller than the TLS-defined maximum. Clients wishing
+      to minimize the risk of noninteroperability with such servers may
+      consider sending only the smaller ECDH types or otherwise limiting the
+      number of parameter sets they include in the Client Hello. It is
+      possible that these noncompliant servers tend to be older and less
+      well-maintained implementations and as such may be less likely to
+      support newer features such as ECDH.</t>
     </section>
 
     <!-- Possibly a 'Contributors' section ... -->
@@ -922,19 +931,21 @@ Application Data             <------->     Application Data
           <t>It cannot be repeated often enough that the early encryption
           negotiated by the EH extension *only* provides protection from
           passive eavesdropper. It *can not* resist a man-in-the-middle type
-          active attacker who wishes to steal a sample of the plaintext the
-          client and server intended to exchange (doing so will break the
-          handshake however). Like TLS without EH, full protection from an
-          active attacker only begins after the Finished messages are received
-          and validated by each side.</t>
+          active attacker who wishes to obtain a sample of the plaintext the
+          client and server intended to exchange. Doing so will break
+          that handshake attempt, but the smart attacker can probably make
+          it appear indistinguishable from ordinary packet loss. Like TLS
+          without EH, full protection from an active attacker only begins
+          after the Finished messages are received and validated by each
+          side.</t>
 
-          <t>It could happen that the handshake encryption so obvious in a
-          packet capture will give users a false sense of security. The
-          difference between unauthenticated encryption and an authenticated
-          (and properly bound) encrypted channel is a subtle distinction even
-          to protocol professionals.  We must be vigilant to inform users of
-          this extension of these limits and to not rely on it for protections
-          beyond what it can deliver.</t>
+          <t>It could happen that the handshake encryption, being easily
+          observed in a packet capture, will give users a false sense of
+          security. The difference between unauthenticated encryption and an
+          authenticated (and properly bound) encrypted channel is a subtle
+          distinction even to protocol experts. We must be vigilant to inform
+          users of this extension of its limitations and not to rely on it for
+          protections beyond what it can deliver.</t>
 
           <t>This extension is not expected to introduce any significant new
           computational Denial of Service (DoS) vulnerabilities. TLS without

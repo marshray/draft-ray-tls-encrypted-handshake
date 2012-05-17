@@ -4,7 +4,7 @@
 # python setup.py install --user
 #
 
-version := 00
+version := pre01
 
 all: draft-ray-tls-encrypted-handshake-${version}.html draft-ray-tls-encrypted-handshake-${version}.txt
 
