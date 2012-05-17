@@ -41,7 +41,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="info" docName="draft-ray-tls-encrypted-handshake-00" ipr="trust200902"> <!-- was ipr="full3978"-->
+<rfc category="info" docName="draft-ray-tls-encrypted-handshake-pre01" ipr="trust200902"> <!-- was ipr="full3978"-->
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN" 
@@ -64,7 +64,6 @@
 
       <address>
         <postal>
-          <street></street>
           <street>7301 W 129th Street</street>
 
           <city>Overland Park</city>
@@ -76,9 +75,29 @@
           <country>USA</country>
         </postal>
 
-        <!--phone></phone-->
-
         <email>marsh@extendedsubset.com</email>
+
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+
+    <author fullname="Nikos " initials="N." surname="Mavrogiannopoulos"><!-- role="editor" -->
+      <organization>#######</organization>
+
+      <address>
+        <postal>
+          <street>XXX</street>
+
+          <city>XXX</city>
+
+          <region>XXX</region>
+
+          <code>XXX</code>
+
+          <country>XXX</country>
+        </postal>
+
+        <email>XXX</email>
 
         <!-- uri and facsimile elements may also be added -->
       </address>
