@@ -1,11 +1,12 @@
 draft-ray-tls-encrypted-handshake
-=================================
+================================
 
 http://www.ietf.org/mail-archive/web/tls/current/msg08722.html
 
 I would appreciate it if the participants of the TLS WG will give this draft a reading and serious consideration to taking it up as a work item:
 
-------------------------------
+* * *
+
 http://datatracker.ietf.org/doc/draft-ray-tls-encrypted-handshake/
 
 A new version of I-D, draft-ray-tls-encrypted-handshake-00.txt has been successfully submitted by Marsh Ray and posted to the IETF repository.
@@ -25,8 +26,8 @@ Abstract:
    or both levels, with the first level incurring no additional
    computational or round-trip overhead.  The TLS cryptographic
    calculations are unchanged.
-------------------------------
 
+* * *
 
 This draft is motivated by the discussions in recent weeks, when some related issues came up in a similar context:
 
@@ -52,5 +53,5 @@ Unfortunately, they are having to minimize their dependence on TLS because it's 
 
 Thanks,
 
-- Marsh
+ - Marsh
 
