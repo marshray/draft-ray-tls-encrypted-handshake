@@ -420,11 +420,13 @@ Application Data             <------->     Application Data
             case dh_anon:
             case dhe_dss:
             case dhe_rsa:
-                ClientDiffieHellmanPublic params;   // [TLS]
+            case diffie_hellman_psk:  // [RFC 4279]
+                ServerDHParams params;   // [TLS]
 XXX PublicValueEncoding is always 'explicit' because Yc 
 XXX must always be sent
-            case ec_diffie_hellman:  
-                ClientECDiffieHellmanPublic params; // [RFC 4492]
+            case ec_diffie_hellman:    // [RFC 4492]
+            case ec_diffie_hellman_psk: // [RFC 5489]
+	        ServerECDHParams    params;
         };
     } ClientDHParamSet;
         ]]></artwork></figure>
@@ -462,12 +464,14 @@ XXX must always be sent
         CompressionMethod compression_method;
         uint16 params_size;
         select (KeyExchangeAlgorithm) {
-            case dh_anon:
-            case dhe_dss:
-            case dhe_rsa:
-                ServerDHParams params;        // [TLS]
-            case ec_diffie_hellman:
-                ServerECDHParams params;      // [RFC 4492]
+          case dh_anon:
+          case dhe_dss:
+          case dhe_rsa:
+          case diffie_hellman_psk:  // [RFC 4279]
+              ClientDiffieHellmanPublic params;        // [TLS]
+          case ec_diffie_hellman:     // [RFC 4492]
+          case ec_diffie_hellman_psk: // [RFC 5489]
+              ClientECDiffieHellmanPublic params;   
         };
         Extension extensions<0..2^16-1>;
     } ServerHello2a;
